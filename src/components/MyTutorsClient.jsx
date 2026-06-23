@@ -54,6 +54,7 @@ export default function MyTutorsClient() {
   const { data: session } = useSession();
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [updateModal, setUpdateModal] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState(null);
@@ -66,23 +67,55 @@ export default function MyTutorsClient() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // ========== আপডেটেড fetchMyTutors ==========
   useEffect(() => {
-    if (!session?.user?.email) return;
+    if (!session?.user?.email) {
+      console.log("🔴 No session email found");
+      setLoading(false);
+      return;
+    }
 
     const fetchMyTutors = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        const res = await authFetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/my-tutors?email=${encodeURIComponent(session.user.email)}`,
-          {
-            credentials: "include",
-          },
-        );
-        if (!res.ok) throw new Error();
+        const email = session.user.email;
+        console.log("🔍 Fetching tutors for email:", email);
+
+        const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/my-tutors?email=${encodeURIComponent(email)}`;
+        console.log("📡 API URL:", url);
+
+        const res = await authFetch(url, {
+          credentials: "include",
+        });
+
+        console.log("📊 Response status:", res.status);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("❌ API Error Response:", errorText);
+          throw new Error(
+            `HTTP ${res.status}: ${errorText || "Unknown error"}`,
+          );
+        }
+
         const data = await res.json();
-        setTutors(data);
-      }
-      finally {
+        console.log("✅ Received tutors:", data);
+
+        // চেক করুন ডাটা অ্যারে কিনা
+        if (Array.isArray(data)) {
+          setTutors(data);
+        } else {
+          console.warn("⚠️ Data is not an array:", data);
+          setTutors([]);
+        }
+      } catch (error) {
+        console.error("❌ Fetch error:", error);
+        setError(error.message);
+        setTutors([]);
+        toast.error("Failed to load your tutors. Please try again.");
+      } finally {
         setLoading(false);
       }
     };
@@ -152,7 +185,8 @@ export default function MyTutorsClient() {
       );
       toast.success("Tutor updated successfully!");
       setUpdateModal(false);
-    } catch {
+    } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update tutor");
     } finally {
       setUpdateLoading(false);
@@ -179,7 +213,8 @@ export default function MyTutorsClient() {
       setTutors((prev) => prev.filter((t) => t._id !== deleteTarget._id));
       toast.success("Tutor deleted successfully!");
       setDeleteModal(false);
-    } catch {
+    } catch (error) {
+      console.error("Delete error:", error);
       toast.error("Failed to delete tutor");
     } finally {
       setDeleteLoading(false);
@@ -202,6 +237,38 @@ export default function MyTutorsClient() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <div
+          className={`rounded-2xl border p-12 text-center ${
+            isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"
+          }`}
+        >
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2
+            className={`text-lg font-bold mb-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Error Loading Tutors
+          </h2>
+          <p
+            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
+          >
+            {error}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-8">
@@ -219,11 +286,15 @@ export default function MyTutorsClient() {
 
       {tutors.length === 0 ? (
         <div
-          className={`rounded-2xl border p-16 text-center ${isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"}`}
+          className={`rounded-2xl border p-16 text-center ${
+            isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"
+          }`}
         >
           <div className="text-5xl mb-4">📭</div>
           <h2
-            className={`text-lg font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-lg font-bold mb-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
           >
             No tutors yet
           </h2>
@@ -235,13 +306,19 @@ export default function MyTutorsClient() {
         </div>
       ) : (
         <div
-          className={`rounded-2xl border overflow-hidden shadow-sm ${isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"}`}
+          className={`rounded-2xl border overflow-hidden shadow-sm ${
+            isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"
+          }`}
         >
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr
-                  className={`text-xs font-semibold uppercase tracking-wide ${isDark ? "bg-gray-800 text-gray-400" : "bg-gray-50 text-gray-500"}`}
+                  className={`text-xs font-semibold uppercase tracking-wide ${
+                    isDark
+                      ? "bg-gray-800 text-gray-400"
+                      : "bg-gray-50 text-gray-500"
+                  }`}
                 >
                   <th className="px-4 py-3 text-left">Tutor</th>
                   <th className="px-4 py-3 text-left">Subject</th>
@@ -253,12 +330,16 @@ export default function MyTutorsClient() {
                 </tr>
               </thead>
               <tbody
-                className={`divide-y ${isDark ? "divide-gray-800" : "divide-gray-100"}`}
+                className={`divide-y ${
+                  isDark ? "divide-gray-800" : "divide-gray-100"
+                }`}
               >
                 {tutors.map((tutor) => (
                   <tr
                     key={tutor._id}
-                    className={`transition ${isDark ? "hover:bg-gray-800/50" : "hover:bg-gray-50"}`}
+                    className={`transition ${
+                      isDark ? "hover:bg-gray-800/50" : "hover:bg-gray-50"
+                    }`}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -275,12 +356,16 @@ export default function MyTutorsClient() {
                         </div>
                         <div>
                           <p
-                            className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+                            className={`text-sm font-semibold ${
+                              isDark ? "text-white" : "text-gray-900"
+                            }`}
                           >
                             {tutor.name}
                           </p>
                           <p
-                            className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                            className={`text-xs ${
+                              isDark ? "text-gray-500" : "text-gray-400"
+                            }`}
                           >
                             {tutor.institution}
                           </p>
@@ -289,18 +374,26 @@ export default function MyTutorsClient() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${isDark ? "bg-sky-900/30 text-sky-400" : "bg-sky-50 text-sky-600"}`}
+                        className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          isDark
+                            ? "bg-sky-900/30 text-sky-400"
+                            : "bg-sky-50 text-sky-600"
+                        }`}
                       >
                         {tutor.subject}
                       </span>
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                      className={`px-4 py-3 text-sm ${
+                        isDark ? "text-gray-300" : "text-gray-600"
+                      }`}
                     >
                       {tutor.teachingMode}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+                      className={`px-4 py-3 text-sm font-semibold ${
+                        isDark ? "text-white" : "text-gray-900"
+                      }`}
                     >
                       ${tutor.hourlyRate}/hr
                     </td>
@@ -320,7 +413,9 @@ export default function MyTutorsClient() {
                       </span>
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                      className={`px-4 py-3 text-sm ${
+                        isDark ? "text-gray-300" : "text-gray-600"
+                      }`}
                     >
                       {tutor.location}
                     </td>
@@ -328,14 +423,22 @@ export default function MyTutorsClient() {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => openUpdateModal(tutor)}
-                          className={`p-2 rounded-lg transition ${isDark ? "hover:bg-gray-700 text-sky-400" : "hover:bg-sky-50 text-sky-600"}`}
+                          className={`p-2 rounded-lg transition ${
+                            isDark
+                              ? "hover:bg-gray-700 text-sky-400"
+                              : "hover:bg-sky-50 text-sky-600"
+                          }`}
                           title="Edit"
                         >
                           <BsPencil size={15} />
                         </button>
                         <button
                           onClick={() => openDeleteModal(tutor)}
-                          className={`p-2 rounded-lg transition ${isDark ? "hover:bg-red-900/20 text-red-400" : "hover:bg-red-50 text-red-500"}`}
+                          className={`p-2 rounded-lg transition ${
+                            isDark
+                              ? "hover:bg-red-900/20 text-red-400"
+                              : "hover:bg-red-50 text-red-500"
+                          }`}
                           title="Delete"
                         >
                           <BsTrash size={15} />
@@ -350,20 +453,31 @@ export default function MyTutorsClient() {
         </div>
       )}
 
+      {/* Update Modal */}
       {updateModal && selectedTutor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm">
           <div
-            className={`w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 ${isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"}`}
+            className={`w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 ${
+              isDark
+                ? "bg-gray-900 border border-gray-800"
+                : "bg-white border border-gray-100"
+            }`}
           >
             <div className="flex items-center justify-between mb-6">
               <h2
-                className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-bold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
               >
                 Update Tutor
               </h2>
               <button
                 onClick={() => setUpdateModal(false)}
-                className={`p-1.5 rounded-lg transition ${isDark ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-500"}`}
+                className={`p-1.5 rounded-lg transition ${
+                  isDark
+                    ? "hover:bg-gray-800 text-gray-400"
+                    : "hover:bg-gray-100 text-gray-500"
+                }`}
               >
                 <BsX size={20} />
               </button>
@@ -374,7 +488,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Tutor Name</label>
                 <div className="relative">
                   <BsPerson
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <input
@@ -391,7 +507,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Photo URL</label>
                 <div className="relative">
                   <BsImage
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <input
@@ -408,7 +526,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Subject / Category</label>
                 <div className="relative">
                   <BsBook
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <select
@@ -452,7 +572,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Time Slot</label>
                 <div className="relative">
                   <BsClock
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <input
@@ -470,7 +592,9 @@ export default function MyTutorsClient() {
                   <label className={labelClass}>Hourly Fee ($)</label>
                   <div className="relative">
                     <BsCurrencyDollar
-                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <input
@@ -487,7 +611,9 @@ export default function MyTutorsClient() {
                   <label className={labelClass}>Total Slot</label>
                   <div className="relative">
                     <BsHash
-                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <input
@@ -506,27 +632,43 @@ export default function MyTutorsClient() {
                 <div>
                   <label className={labelClass}>Session Start Date</label>
                   <div
-                    className={`flex items-center border rounded-lg overflow-hidden ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
+                    className={`flex items-center border rounded-lg overflow-hidden ${
+                      isDark
+                        ? "border-gray-700 bg-gray-800"
+                        : "border-gray-200 bg-gray-50"
+                    }`}
                   >
                     <BsCalendar
-                      className={`ml-3 shrink-0 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`ml-3 shrink-0 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <DatePicker
                       selected={sessionStartDate}
                       onChange={(date) => setSessionStartDate(date)}
                       placeholderText="Start date"
-                      className={`w-full px-3 py-2.5 text-sm outline-none bg-transparent ${isDark ? "text-white placeholder-gray-500" : "text-gray-900"}`}
+                      className={`w-full px-3 py-2.5 text-sm outline-none bg-transparent ${
+                        isDark
+                          ? "text-white placeholder-gray-500"
+                          : "text-gray-900"
+                      }`}
                     />
                   </div>
                 </div>
                 <div>
                   <label className={labelClass}>Session End Date</label>
                   <div
-                    className={`flex items-center border rounded-lg overflow-hidden ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-gray-50"}`}
+                    className={`flex items-center border rounded-lg overflow-hidden ${
+                      isDark
+                        ? "border-gray-700 bg-gray-800"
+                        : "border-gray-200 bg-gray-50"
+                    }`}
                   >
                     <BsCalendar
-                      className={`ml-3 shrink-0 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`ml-3 shrink-0 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <DatePicker
@@ -534,7 +676,11 @@ export default function MyTutorsClient() {
                       onChange={(date) => setSessionEndDate(date)}
                       placeholderText="End date"
                       minDate={sessionStartDate}
-                      className={`w-full px-3 py-2.5 text-sm outline-none bg-transparent ${isDark ? "text-white placeholder-gray-500" : "text-gray-900"}`}
+                      className={`w-full px-3 py-2.5 text-sm outline-none bg-transparent ${
+                        isDark
+                          ? "text-white placeholder-gray-500"
+                          : "text-gray-900"
+                      }`}
                     />
                   </div>
                 </div>
@@ -545,7 +691,9 @@ export default function MyTutorsClient() {
                   <label className={labelClass}>Institution</label>
                   <div className="relative">
                     <BsBuilding
-                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <input
@@ -561,7 +709,9 @@ export default function MyTutorsClient() {
                   <label className={labelClass}>Experience</label>
                   <div className="relative">
                     <BsPerson
-                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                       size={15}
                     />
                     <input
@@ -579,7 +729,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Location</label>
                 <div className="relative">
                   <BsGeoAlt
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <input
@@ -596,7 +748,9 @@ export default function MyTutorsClient() {
                 <label className={labelClass}>Teaching Mode</label>
                 <div className="relative">
                   <BsLaptop
-                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
                     size={15}
                   />
                   <select
@@ -626,24 +780,35 @@ export default function MyTutorsClient() {
         </div>
       )}
 
+      {/* Delete Modal */}
       {deleteModal && deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm">
           <div
-            className={`w-full max-w-sm rounded-2xl shadow-2xl p-6 ${isDark ? "bg-gray-900 border border-gray-800" : "bg-white border border-gray-100"}`}
+            className={`w-full max-w-sm rounded-2xl shadow-2xl p-6 ${
+              isDark
+                ? "bg-gray-900 border border-gray-800"
+                : "bg-white border border-gray-100"
+            }`}
           >
             <div className="text-center mb-6">
               <div
-                className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-4 ${isDark ? "bg-red-900/20" : "bg-red-50"}`}
+                className={`inline-flex items-center justify-center w-14 h-14 rounded-full mb-4 ${
+                  isDark ? "bg-red-900/20" : "bg-red-50"
+                }`}
               >
                 <BsExclamationTriangle size={24} className="text-red-500" />
               </div>
               <h2
-                className={`text-lg font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-bold mb-2 ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
               >
                 Delete Tutor
               </h2>
               <p
-                className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-sm ${
+                  isDark ? "text-gray-400" : "text-gray-500"
+                }`}
               >
                 Are you sure you want to delete{" "}
                 <span className="font-semibold">{deleteTarget.name}</span>? This
@@ -653,7 +818,11 @@ export default function MyTutorsClient() {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteModal(false)}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition ${isDark ? "border-gray-700 text-gray-300 hover:bg-gray-800" : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition ${
+                  isDark
+                    ? "border-gray-700 text-gray-300 hover:bg-gray-800"
+                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                }`}
               >
                 Cancel
               </button>

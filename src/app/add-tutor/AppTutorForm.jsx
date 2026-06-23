@@ -21,7 +21,7 @@ import {
   BsInfoCircle,
   BsGlobe,
 } from "react-icons/bs";
-import { authFetch } from "@/lib/utils/jwt";
+import { authFetch, getToken } from "@/lib/utils/jwt";
 
 const SUBJECTS = [
   "Mathematics",
@@ -110,8 +110,19 @@ export default function AddTutorForm() {
     }
   };
 
+  // ========== আপডেটেড handleSubmit ==========
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔴 টোকেন চেক করুন
+    const token = getToken();
+    console.log("🔑 Token before submit:", token ? "Present ✅" : "Missing ❌");
+
+    if (!token) {
+      toast.error("Please login first!");
+      router.push("/login");
+      return;
+    }
 
     if (isSubmitting) {
       toast.warning("Please wait, submission is already in progress...");
@@ -172,27 +183,38 @@ export default function AddTutorForm() {
       teachingMode: formData.get("teachingMode"),
       about: aboutText,
       email: session?.user?.email,
-      addedBy: session?.user?.name,
+      addedBy: session?.user?.email,
       review: 0,
     };
 
+    console.log("📤 Sending tutor data:", tutor);
+
     try {
-      const res = await authFetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/tutors`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(tutor),
+      // 🔴 ম্যানুয়ালি Authorization header যোগ করা হয়েছে
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutors`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(tutor),
+        credentials: "include",
+      });
+
+      console.log("📊 Response status:", res.status);
 
       if (!res.ok) {
         const errorData = await res.json();
+        console.error("❌ Error response:", errorData);
         throw new Error(errorData.message || "Failed to add tutor");
       }
 
+      const result = await res.json();
+      console.log("✅ Tutor added successfully:", result);
+
       toast.success("Tutor added successfully!");
 
+      // ফর্ম রিসেট করুন
       e.target.reset();
       setSessionStartDate(null);
       setSessionEndDate(null);
@@ -202,9 +224,11 @@ export default function AddTutorForm() {
       setTimeSlotMode("preset");
       setExperienceValue("");
 
-      // router.push("/my-tutors");
-      // router.refresh();
+      // My Tutors পেজে রিডাইরেক্ট করুন
+      router.push("/my-tutors");
+      router.refresh();
     } catch (error) {
+      console.error("❌ Submit error:", error);
       toast.error(error.message || "Something went wrong. Try again.");
     } finally {
       setLoading(false);
