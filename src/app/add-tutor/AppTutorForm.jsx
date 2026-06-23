@@ -110,13 +110,11 @@ export default function AddTutorForm() {
     }
   };
 
-  // ========== আপডেটেড handleSubmit ==========
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔴 টোকেন চেক করুন
     const token = getToken();
-    console.log("🔑 Token before submit:", token ? "Present ✅" : "Missing ❌");
+    console.log(" Token before submit:", token ? "Present " : "Missing ");
 
     if (!token) {
       toast.error("Please login first!");
@@ -187,10 +185,9 @@ export default function AddTutorForm() {
       review: 0,
     };
 
-    console.log("📤 Sending tutor data:", tutor);
+    console.log(" Sending tutor data:", tutor);
 
     try {
-      // 🔴 ম্যানুয়ালি Authorization header যোগ করা হয়েছে
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/tutors`, {
         method: "POST",
         headers: {
@@ -210,11 +207,10 @@ export default function AddTutorForm() {
       }
 
       const result = await res.json();
-      console.log("✅ Tutor added successfully:", result);
+      console.log("Tutor added successfully:", result);
 
       toast.success("Tutor added successfully!");
 
-      // ফর্ম রিসেট করুন
       e.target.reset();
       setSessionStartDate(null);
       setSessionEndDate(null);
@@ -224,11 +220,10 @@ export default function AddTutorForm() {
       setTimeSlotMode("preset");
       setExperienceValue("");
 
-      // My Tutors পেজে রিডাইরেক্ট করুন
       router.push("/my-tutors");
       router.refresh();
     } catch (error) {
-      console.error("❌ Submit error:", error);
+      console.error(" Submit error:", error);
       toast.error(error.message || "Something went wrong. Try again.");
     } finally {
       setLoading(false);
