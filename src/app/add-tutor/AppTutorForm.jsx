@@ -198,11 +198,11 @@ export default function AddTutorForm() {
         credentials: "include",
       });
 
-      console.log("📊 Response status:", res.status);
+      console.log(" Response status:", res.status);
 
       if (!res.ok) {
         const errorData = await res.json();
-        console.error("❌ Error response:", errorData);
+        console.error(" Error response:", errorData);
         throw new Error(errorData.message || "Failed to add tutor");
       }
 

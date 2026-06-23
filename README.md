@@ -2,7 +2,7 @@
 
 **MediQueue** is a full-stack tutor booking web application that allows students to register, log in, browse available tutors, and book online learning sessions based on subject and time availability. The system generates digital session tokens for each booking and helps users manage their scheduled classes efficiently.
 
- **Live Site:** [MediQueue](https://mediqueue-orcin.vercel.app/)
+ **Live Site:** [MediQueue](https://assignment-nine-rose-one.vercel.app/)
 
 ---
 
@@ -59,14 +59,14 @@
 
 ## 🌐 Live Links
 
-- 🌍 **Frontend (Client):** [MediQueue](https://mediqueue-orcin.vercel.app/)
-- 🖥️ **Backend (Server):** [Mediqueue-server](https://medi-queue-server-two.vercel.app/)
+- 🌍 **Frontend (Client):** [MediQueue](https://assignment-nine-rose-one.vercel.app/)
+- 🖥️ **Backend (Server):** [Mediqueue-server](https://assignment-nine-server-gold.vercel.app/)
 
 ---
 
 ## 📦 GitHub Repositories
 
-- 📘 **Client Side:** [https://github.com/Sourov-Chandra/a-9_Mediqueue-client-side](https://github.com/Sourov-Chandra/a-9_Mediqueue-client-side)
-- 📗 **Server Side:** [https://github.com/Sourov-Chandra/a-9_mediqueue-server](https://github.com/Sourov-Chandra/a-9_mediqueue-server)
+- 📘 **Client Side:** [https://github.com/didarulalamrafi/assignment-nine](https://github.com/didarulalamrafi/assignment-nine)
+- 📗 **Server Side:** [https://github.com/didarulalamrafi/assignment-nine-server](https://github.com/didarulalamrafi/assignment-nine-server)
 
 ---
