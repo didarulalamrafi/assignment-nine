@@ -67,10 +67,9 @@ export default function MyTutorsClient() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // ========== আপডেটেড fetchMyTutors ==========
   useEffect(() => {
     if (!session?.user?.email) {
-      console.log("🔴 No session email found");
+      console.log(" No session email found");
       setLoading(false);
       return;
     }
@@ -81,29 +80,28 @@ export default function MyTutorsClient() {
 
       try {
         const email = session.user.email;
-        console.log("🔍 Fetching tutors for email:", email);
+        console.log(" Fetching tutors for email:", email);
 
         const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/my-tutors?email=${encodeURIComponent(email)}`;
-        console.log("📡 API URL:", url);
+        console.log(" API URL:", url);
 
         const res = await authFetch(url, {
           credentials: "include",
         });
 
-        console.log("📊 Response status:", res.status);
+        console.log(" Response status:", res.status);
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error("❌ API Error Response:", errorText);
+          console.error(" API Error Response:", errorText);
           throw new Error(
             `HTTP ${res.status}: ${errorText || "Unknown error"}`,
           );
         }
 
         const data = await res.json();
-        console.log("✅ Received tutors:", data);
+        console.log(" Received tutors:", data);
 
-        // চেক করুন ডাটা অ্যারে কিনা
         if (Array.isArray(data)) {
           setTutors(data);
         } else {
@@ -111,7 +109,7 @@ export default function MyTutorsClient() {
           setTutors([]);
         }
       } catch (error) {
-        console.error("❌ Fetch error:", error);
+        console.error(" Fetch error:", error);
         setError(error.message);
         setTutors([]);
         toast.error("Failed to load your tutors. Please try again.");
