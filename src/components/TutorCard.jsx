@@ -120,7 +120,7 @@ export default function TutorCard({ tutor }) {
             href={`/tutors/${tutor._id}`}
             className="group/btn relative inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:scale-105 active:scale-95 transition-all duration-200 overflow-hidden shrink-0"
           >
-            <span className="relative z-10">Book Session Now</span>
+            <span className="relative z-10">Book Session</span>
             <BsArrowRight
               size={14}
               className="relative z-10 transition-transform duration-200 group-hover/btn:translate-x-1"
