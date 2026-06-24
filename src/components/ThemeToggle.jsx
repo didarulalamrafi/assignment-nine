@@ -11,7 +11,7 @@ export default function ThemeToggle() {
       className={`p-2 rounded-lg transition ${
         isDark
           ? "hover:bg-gray-700 text-gray-200"
-          : "hover:bg-gray-200 text-gray-700"
+          : "hover:bg-gray-200 text-gray-600"
       }`}
       aria-label="Toggle theme"
     >
