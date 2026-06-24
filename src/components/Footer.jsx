@@ -41,7 +41,7 @@ export default function Footer() {
       label: "Twitter",
     },
     {
-      href: "https://instagram.com",
+      href: "https://youtube.com",
       icon: <BsInstagram size={18} />,
       label: "Instagram",
     },
