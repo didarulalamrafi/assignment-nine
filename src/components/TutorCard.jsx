@@ -13,7 +13,6 @@ import {
 export default function TutorCard({ tutor }) {
   return (
     <div className="group relative rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col h-full">
-     
       <div className="absolute inset-0 bg-linear-to-br from-sky-500/0 via-transparent to-sky-500/0 group-hover:from-sky-500/5 group-hover:to-sky-500/5 transition-all duration-500 pointer-events-none z-0" />
 
       <div className="relative h-52 w-full overflow-hidden bg-linear-to-br from-sky-100 to-blue-100 dark:from-gray-800 dark:to-gray-800 shrink-0">

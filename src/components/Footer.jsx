@@ -31,7 +31,7 @@ export default function Footer() {
 
   const socialLinks = [
     {
-      href: "https://facebook.com",
+      href: "https://facebookdidarulalamrafi.com",
       icon: <BsFacebook size={18} />,
       label: "Facebook",
     },
