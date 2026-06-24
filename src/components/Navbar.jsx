@@ -112,7 +112,7 @@ export default function Navbar() {
             href="/"
             className="flex items-center text-center gap-2 text-xl font-bold hover:opacity-80 transition text-gray-900 dark:text-white"
           >
-            <BsBook color="#3182ce" size={24} /> MediQueue
+            <BsBook color="#3182ce" size={24} /> Tutor
           </Link>
 
           {/* Desktop Nav */}
