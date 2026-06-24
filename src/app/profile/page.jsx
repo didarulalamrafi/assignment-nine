@@ -31,7 +31,7 @@ export default function ProfilePage() {
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-sky-200 border-t-sky-600 animate-spin" />
           <p className="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-wide">
-            Loading profile…
+            Loadingprofile…
           </p>
         </div>
       </div>
@@ -60,7 +60,6 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-20 pb-16 px-4">
-      
       <div className="max-w-3xl mx-auto mb-6">
         <button
           onClick={() => router.back()}
@@ -76,7 +75,6 @@ export default function ProfilePage() {
 
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-  
           <div className="h-28 bg-linear-to-r from-sky-400 via-sky-500 to-blue-600 relative">
             <div
               className="absolute inset-0 opacity-20"
@@ -88,10 +86,8 @@ export default function ProfilePage() {
             />
           </div>
 
-        
           <div className="px-6 pb-6">
             <div className="-mt-12 mb-4 flex items-end justify-between">
-           
               <div className="relative">
                 {user?.image ? (
                   <div className="w-24 h-24 rounded-2xl ring-4 ring-white dark:ring-gray-900 shadow-lg overflow-hidden">
@@ -110,7 +106,7 @@ export default function ProfilePage() {
                     </span>
                   </div>
                 )}
- 
+
                 {user?.emailVerified && (
                   <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5">
                     <BsPatchCheckFill size={18} className="text-sky-500" />
@@ -134,7 +130,6 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-     
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 space-y-4">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
               Account Details
